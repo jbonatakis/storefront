@@ -39,8 +39,6 @@ class Customer(DatetimeBaseClass):
         (MEMBERSHIP_GOLD, 'Gold'),
     ]
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
