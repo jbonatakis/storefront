@@ -1,26 +1,24 @@
 from itertools import product
 from sre_constants import MAX_UNTIL
 from statistics import mode
+
 from django.db import models
 
+from storefront.utils import DatetimeBaseClass
+from storefront.utils import get_expiration
 
-class Promotion(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+
+class Promotion(DatetimeBaseClass):
     description = models.CharField(max_length=255)
     discount = models.FloatField()
 
 
-class Collection(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+class Collection(DatetimeBaseClass):
     title = models.CharField(max_length=255)
     featured_product = models.ForeignKey('Product', on_delete=models.SET_NULL, null=True, related_name='+')
 
 
-class Product(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+class Product(DatetimeBaseClass):
     title = models.CharField(max_length=255)
     slug = models.SlugField()
     description = models.TextField()
@@ -30,7 +28,7 @@ class Product(models.Model):
     promotions = models.ManyToManyField(Promotion)
 
 
-class Customer(models.Model):
+class Customer(DatetimeBaseClass):
     MEMBERSHIP_BRONZE = 'B'
     MEMBERSHIP_SILVER = 'S'
     MEMBERSHIP_GOLD = 'G'
@@ -51,7 +49,7 @@ class Customer(models.Model):
     membership = models.CharField(max_length=1, choices=MEMBERSHIP_CHOICES, default=MEMBERSHIP_BRONZE)
 
 
-class Order(models.Model):
+class Order(DatetimeBaseClass):
     PAYMENT_STATUS_PENDING = 'P'
     PAYMENT_STATUS_COMPLETE = 'C'
     PAYMENT_STATUS_FAILED = 'F'
@@ -62,37 +60,28 @@ class Order(models.Model):
         (PAYMENT_STATUS_FAILED, 'Failed'),
     ]
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     payment_status = models.CharField(max_length=1, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
 
 
-class Address(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+class Address(DatetimeBaseClass):
     street = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     zip = models.CharField(max_length=5, null=True)
 
 
-class Cart(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+class Cart(DatetimeBaseClass):
+    expires_at = models.DateTimeField(default=get_expiration)
 
 
-class CartItem(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+class CartItem(DatetimeBaseClass):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveSmallIntegerField()
 
 
-class OrderItem(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+class OrderItem(DatetimeBaseClass):
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
     order = models.ForeignKey(Order, on_delete=models.PROTECT)
     quantity = models.PositiveSmallIntegerField()
