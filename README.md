@@ -1,0 +1,1 @@
+Learning Django via [Code with Mosh](https://codewithmosh.com)
